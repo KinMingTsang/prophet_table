@@ -19,7 +19,8 @@ This module is based on padandas pd, and designed for single model point file sy
 
     def print_table(self)->None:
         printing function, print the table content
-        def sort_records(self, target, sort_timing="",target_col="",inplace =False) -> pd.DataFrame:
+    
+    def sort_records(self, target, sort_timing="",target_col="",inplace =False) -> pd.DataFrame:
         path input the directory of the file, ending with \\ string type expected
         sort_timing, it used to sort the table with naming at specific timing string type expected
         target Required Value for sorting, string type expected
@@ -34,7 +35,11 @@ This module is based on padandas pd, and designed for single model point file sy
         Path: String Expected Output path of the file
         as_csv : Bool, True if you want to export as csv
         Export the file into the desire path with the original extension or csv
-        
+## Usage
+	#to load the tables
+	df1 = prophet_table(path = src2,file = tables[0])
+	df2 = prophet_table(path = src1,file =  tables[1])
+
 
 
     
