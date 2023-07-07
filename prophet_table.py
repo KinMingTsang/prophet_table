@@ -1,10 +1,5 @@
-import tqdm
-import re
 import pandas as pd
-import numpy
 import os
-import types
-
 # def report_error(msg = ""):
 class prophet_table():
 
@@ -70,7 +65,6 @@ class prophet_table():
         else:
             raise Exception("Invalid Data Type")
         
-        self.index = self.__content__.index
         self.shape =   (lambda x: x if self.show_leading else (x[0],x[1]-1))(self.__content__.shape)
         self.columns = self.__content__.columns
         self.show_leading = show_leading
@@ -82,7 +76,15 @@ class prophet_table():
 
 
     def head(self,row_num)->pd.Series:
+        #row_num: int, the number of row going to show
+        #return the rows from head
         return self.__content__.head(row_num)
+    
+    def tail(self,row_num)->pd.Series:
+        #row_num: int, the number of row going to show
+        #return the rows from tail
+        return self.__content__.tail(row_num)
+
 
     def __load_ext__(self, file)->None:
         #file string, input file name expected ending with extenstion
@@ -240,17 +242,17 @@ class prophet_table():
         result=pd.DataFrame()   
 
         try:
-            result["Lookup_Key"] = pd.concat([self.__content__["Key"], table2.get_content()["Key"]], axis=0, ignore_index=True).unique()
+            result["Lookup_Key"] = pd.concat([self.__content__["Key"], table2.__content__["Key"]], axis=0, ignore_index=True).unique()
         
         except ValueError:
-            result["Lookup_Key"] = pd.Series(pd.concat([self.__content__["Key"],table2.get_content()["Key"]], axis=0, ignore_index=True).unique()).reindex()
+            result["Lookup_Key"] = pd.Series(pd.concat([self.__content__["Key"],table2.__content__["Key"]], axis=0, ignore_index=True).unique()).reindex()
         
         temp = []
 
         for key in result["Lookup_Key"]:
 
             check1 = self.__key_loc__(key,self.__content__["Key"])
-            check2 = self.__key_loc__(key, table2["Key"])
+            check2 = self.__key_loc__(key, table2.__content__["Key"])
             
             if check1!=-1 and check2!=-1 :
                 temp.append("Matched in both file")
@@ -278,9 +280,6 @@ class prophet_table():
 
     def get_key_num(self)->int:
         return self.__key_num__
-    def get_content(self)->pd.DataFrame:
-        return self.__content__
-
 #####################################################################################Pending  FUNCTIONS ##############################################
     
     def to_file(self, path="", as_csv=False)->None:
@@ -304,7 +303,92 @@ class prophet_table():
             print(">>>>>>Exporting to {} as {}".format(path,self.__file_name__+self.__ext__))
             pass
 
+##columns name of column index of the table content 
+
+###https://pandas.pydata.org/docs/reference/frame.html
+    def concat(self):
+        pass
+    
+    def insert(self):
+        pass
+    def Copy(self):
+        pass
+    def at(self):
+        pass
+    def iat(self):
+        pass
+
+    def loc(self):
+        pass
+
+    def iter(self):
+        pass
+    def keys(self):
+        pass
+    def pop(self):
+        pass
+    def get(self):
+        pass
+    def mask(self):
+        pass
+    def query(self):
+        pass
+
+    def isin(self):
+        pass
+    def sum(self):
+        pass
+    def apply(self):
+        pass
+    def between_time(self):
+        pass
+    
+    def drop(self):
+        pass
+    
+    def duplicated(self):
+        pass
+
+    def equals(self):
+        pass
+
+    def reindex(self):
+        pass
+
+    def ffil(self):
+        pass
+
+    def dropna(self):
+        pass
+    def backfill(self):
+        pass
+    
+    def bfill(self):
+        pass
+    
+    def interpolate(self):
+        pass
+    
+    def isna(self):
+        pass
+
+    def is_null(self):
+        pass
+
+    def not_null(self):
+        pass
+
+    def repalce(self):
+        pass
+
+    def rename(self):
+        pass
+
+    def groupBy(self):
+        pass
+    
+    def unique(self):
+        pass
 
 
-
-        
+#####################################################################################################################################################

@@ -35,6 +35,8 @@ df1 = df1[df1['AGE_AT_ENTRY']<'40']
 print(df1)
 print(df1.compare(df2))
 
+print(type(df1['SPCODE']))
+
 # for file in tqdm(get_files(src2,(lambda src:  True if src.find(".fac")!=-1 and src.find("202212")!=-1 else False)),desc = "Table checking progress",unit = "tables"):
 # for file in tqdm(get_files(src2,(lambda src:  True if src.find(".fac")!=-1 else False)),desc = "Table checking progress",unit = "tables"):
 #         try:
