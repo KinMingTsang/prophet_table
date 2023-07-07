@@ -6,7 +6,7 @@ import os
 import types
 
 # def report_error(msg = ""):
-class prophet_table:
+class prophet_table():
 
     __expected_ext__ = [".R",".N",".l",".PRO",".fac"]
     __key_num__ = 0
@@ -61,6 +61,13 @@ class prophet_table:
         else:
             print("Invalid Data Type")
 
+    def haeds(self)->pd.Series:
+        return self.__content__.heads()
+
+    def columns(self)->pd.Index:
+        return self.__content__.columns
+
+
     def __eq__(self,object2)->None:
         if isinstance(object2,prophet_table):
             self.__content__ = object2.__content__
@@ -91,8 +98,11 @@ class prophet_table:
     def __getitem__(self, key):
         #key: the key index required
         #override the [] functions
-        #return prophet_table( object = self.__content__[key], path = self.__path__, file = self.__file_name__+self.__ext__,show_leading= self.__show_leading__)
-        return self.__content__[key]
+        return prophet_table( object = self.__content__[key], path = self.__path__, file = self.__file_name__+self.__ext__,show_leading= self.__show_leading__)
+        
+
+
+
     def __key_loc__(self, key, lookup)->int:
         #this function will return the index of the key
         #lookup: the table you want to check with. Key: The target you want to find
