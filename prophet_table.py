@@ -19,30 +19,23 @@ class prophet_table():
         #gen_key: Bool use for mapping and comparison between table
         #show_leading: show when displaying the table content
 
-        if isinstance(object, type(None)):
-            if not(isinstance(path,str)) or not(isinstance(file,str)):
-                raise TypeError
-            
-            if  not(os.path.exists(path)):
-                raise Exception("Path not found error")
+        if not(isinstance(path,str)) or not(isinstance(file,str)):
+            raise TypeError
+        
+        if  not(os.path.exists(path)):
+            raise Exception("Path not found error")
 
-            if not(file in os.listdir(path)):
-                raise FileNotFoundError
-            
+        if not(file in os.listdir(path)):
+            raise FileNotFoundError
+
+        if isinstance(object, type(None)):
             self.__load_ext__(file = file)
             self.__path__ = (lambda x : x+"\\" if x.rfind("\\") != len(x)-1 else x)(path)
             self.__file_name__ = file[0:file.find(self.__ext__)]
             self.__load_table__()
 
         elif isinstance(object,pd.DataFrame) :
-            if not(isinstance(path,str)) or not(isinstance(file,str)):
-                raise TypeError
 
-            if  not(os.path.exists(path)):
-                raise Exception("Path not found error")
-
-            if not(file in os.listdir(path)):
-                raise FileNotFoundError
             if object.columns[0].find("!")==-1:
                 object  =  object.to_frame().insert(0,"!"+object.shape(1),"*")
 
@@ -57,15 +50,6 @@ class prophet_table():
         
         elif isinstance(object, pd.Series):
             
-            if not(isinstance(path,str)) or not(isinstance(file,str)):
-                raise TypeError
-
-            if  not(os.path.exists(path)):
-                raise Exception("Path not found error")
-
-            if not(file in os.listdir(path)):
-                raise FileNotFoundError
-
             if object.dtype == bool:
                 raise Exception("Boolean Value Series Cannot be used as a table")
 
@@ -113,8 +97,6 @@ class prophet_table():
 #####################################################################################Function OVERLOADING ##############################################
 
     def __getitem__(self, key)->pd.Series:
-        #key: the key index required
-        #override the [] functions
         result = self.__content__[key]
         
         if isinstance(result,pd.Series):
@@ -122,8 +104,7 @@ class prophet_table():
             
         return prophet_table( object = result, path = self.__path__, file = self.__file_name__+self.__ext__, show_table = self.show_table, show_info = self.show_info, show_leading = self.show_leading)
 
-    def __str__(self):
-        ##Print function overloading
+    def __str__(self)->str:
         if self.show_info:
             if self.show_table:
                 return ">>>>>>File source:\t {}\n>>>>>>File type:\t {}\n>>>>>>File Shape:\t {}\n>>>>>>File Settings:\t key_num = {},\t show_leading = {}\n{}".format(self.__path__+self.__file_name__+self.__ext__,                            
@@ -135,7 +116,6 @@ class prophet_table():
             return ">>>>>>File Shape:\t {}\n>>>>>>File Settings:\t key_num = {},\t show_leading = {}\n{}".format(self.shape, self.__key_num__, self.show_leading, (lambda has_leading:self.__content__ if has_leading else  self.__content__[[x for x in self.__content__.keys()[1:]]])(self.show_leading))
 
     def __lt__(self, other)->pd.Series:
-         
         if isinstance(other,prophet_table):
             return self.__content__<other.get_content()
         else:
@@ -199,10 +179,6 @@ class prophet_table():
 
     def __load_table__(self, drop_na=True)->None:
         #this function allow user to import the fac file with removed NA contents, you can disable it by comment the df.dropna() line
-        #include the path for the checking table format should be path\\file
-        #to compare all value in the dataframe, the pre-requisite is to use all key as the look up value. To do so, just put value_compare = True
-        #drop_axis sets the axis which script should follow, follow row  : 0 , follow col : 1
-        
         self.__content__ = pd.read_csv(self.__path__+self.__file_name__+self.__ext__,sep = ",",skiprows = [x for x in range(self.__find_fac_header_row__())],encoding='latin', dtype=str, on_bad_lines="skip")
         if drop_na:
             self.__content__.dropna(axis=0,inplace = True)
@@ -292,19 +268,15 @@ class prophet_table():
 #####################################################################################ACCESSOR FUNCTIONS ##############################################
 
     def get_ext(self)->str:
-        #accessor, return the extension of the file
         return self.__ext__
 
     def get_filename(self)->str:
-        #accessor, return the file name
         return self.__file_name__
     
     def get_path(self)->str:
-        #accessor, return the path of the file
         return self.__path__
 
     def get_key_num(self)->int:
-        #accessor, return the num of column used as key
         return self.__key_num__
     def get_content(self)->pd.DataFrame:
         return self.__content__
