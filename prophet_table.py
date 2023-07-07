@@ -10,29 +10,73 @@ class prophet_table:
 
     __expected_ext__ = [".R",".N",".l",".PRO",".fac"]
     __key_num__ = 0
+    __show_leading__ = False
 
-    def __init__(self, path="", file="", gen_key=False)->None:
+
+    def __init__(self, object =None, path="", file="", gen_key=False, show_leading = False)->None:
+        #object: Pandas or prophet_table expected
         #path: string the input directory of the file
         #file: string file name with extension 
         #gen_key: Bool use for mapping and comparison between table
+        #show_leading: show when displaying the table content
 
-        if not(isinstance(path,str)) or not(isinstance(file,str)):
-            raise TypeError
+        if isinstance(object, type(None)):
+            if not(isinstance(path,str)) or not(isinstance(file,str)):
+                raise TypeError
+            
+            if  not(os.path.exists(path)):
+                raise Exception("Path not found error")
 
-        self.__load_ext__(file = file)
+            if not(file in os.listdir(path)):
+                raise FileNotFoundError
+            
+            self.__load_ext__(file = file)
+            self.__path__ = (lambda x : x+"\\" if x.rfind("\\") != len(x)-1 else x)(path)
+            self.__file_name__ = file[0:file.find(self.__ext__)]
+            self.__load_table__()
+            self.__show_leading__ = show_leading
 
-        if  not(os.path.exists(path)):
-            raise Exception("Path not found error")
+            if gen_key:
+                self.__gen_key__()
 
-        if not(file in os.listdir(path)):
-            raise FileNotFoundError
-        
-        self.__path__ = (lambda x : x+"\\" if x.rfind("\\") != len(x)-1 else x)(path)
-        self.__file_name__ = file[0:file.find(self.__ext__)]
-        self.__load_table__()
+        elif isinstance(object,pd.DataFrame):
+            if not(isinstance(path,str)) or not(isinstance(file,str)):
+                raise TypeError
 
-        if gen_key:
-            self.__gen_key__()
+            if  not(os.path.exists(path)):
+                raise Exception("Path not found error")
+
+            if not(file in os.listdir(path)):
+                raise FileNotFoundError
+            
+            
+            self.__load_ext__(file = file)
+            self.__path__ = (lambda x : x+"\\" if x.rfind("\\") != len(x)-1 else x)(path)
+            self.__file_name__ = file[0:file.find(self.__ext__)]
+            self.__content__ = object
+            self.__show_leading__ = show_leading
+            if gen_key:
+                self.__gen_key__()
+
+        else:
+            print("Invalid Data Type")
+
+    def __eq__(self,object2)->None:
+        if isinstance(object2,prophet_table):
+            self.__content__ = object2.__content__
+            self.__key_num__ = object2.__key_num__
+            self.__show_leading__ = object2.__show_leading__
+            self.__path__ = object2.__path__
+            self.__file_name__ = object2.__file_name__
+            self.__ext__ = object2.__ext__
+
+        if isinstance(object2,pd.DataFrame):
+            self.__content__ = object2.__content__
+            self.__key_num__ = object2.__key_num__
+            self.__show_leading__ = object2.__show_leading__
+            self.__path__ = object2.__path__
+            self.__file_name__ = object2.__file_name__
+            self.__ext__ = object2.__ext__
 
     def __load_ext__(self, file)->None:
         #file string, input file name expected ending with extenstion
@@ -44,11 +88,11 @@ class prophet_table:
         print("Extension value error, not a valid extension")
         raise ValueError
 
-    def __getitem__(self, key)->pd.DataFrame:
+    def __getitem__(self, key):
         #key: the key index required
         #override the [] functions
+        #return prophet_table( object = self.__content__[key], path = self.__path__, file = self.__file_name__+self.__ext__,show_leading= self.__show_leading__)
         return self.__content__[key]
-
     def __key_loc__(self, key, lookup)->int:
         #this function will return the index of the key
         #lookup: the table you want to check with. Key: The target you want to find
@@ -84,7 +128,7 @@ class prophet_table:
             self.__content__.dropna(axis=0,inplace = True)
         
         self.__find_key_num__()
-        self.__content__.drop(self.__content__.columns[0], axis=1,inplace= True) # to drop the column with *
+        # self.__content__.drop(self.__content__.columns[0], axis=1,inplace= True) # to drop the column with *
   
     def __find_key_num__(self)->int:
         #df the target dataframe, pandas dataframe is expected
@@ -99,25 +143,31 @@ class prophet_table:
     def __gen_key__(self, value_compare=False)->None:
         # value_compare: Boolean, True when you want to compare the value for whole table
         #this function will attach the key to the  target dataframe with key attached
+                    
+        cur_key = ""  
         
-        if value_compare:
-            cur_key = ""   
+        if "Key" in self.__content__.keys():
+            if value_compare:
 
-            for cur_col in self.__content__.columns:
-                cur_key +=  self.__content__[cur_col]+"_" 
+                for cur_col in self.__content__.keys()[1:len(self.__content__.keys())-1]:
+                    cur_key +=  self.__content__[cur_col]+"-" 
+            
+            else: 
 
-            self.__content__["Key"] = cur_key 
-        
-        else: 
-        
-            cur_key = ""   
-        
-            col_name = self.__content__.columns
+                for cur_col in self.__content__.keys()[1:self.__key_num__+1]:
+                    cur_key +=  self.__content__[cur_col]+"-" 
 
-            for cur_col in col_name[0:self.__key_num__]:
-                cur_key +=  self.__content__[cur_col]+"-" 
+        else:
+            if value_compare:
 
-            self.__content__["Key"] = cur_key
+                for cur_col in self.__content__.keys()[1:]:
+                    cur_key +=  self.__content__[cur_col]+"-" 
+            
+            else:  
+                for cur_col in self.__content__.keys()[1:self.__key_num__+1]:
+                    cur_key +=  self.__content__[cur_col]+"-" 
+
+        self.__content__["Key"] = cur_key
 
     def get_ext(self)->str:
         #accessor, return the extension of the file
@@ -131,10 +181,16 @@ class prophet_table:
         #accessor, return the path of the file
         return self.__path__
     
-    def get_key_num(self):
+    def set_show_leading(self)->None:
+        self.__show_leading__ = not(self.__show_leading__)
+    
+    def get_show_leading(self)->bool:
+        return self.__show_leading__
+
+    def get_key_num(self)->int:
         #accessor, return the num of column used as key
         return self.__key_num__
-
+    
     def compare(self, fac2)->pd.DataFrame:
         # fac2 = table 2 you imported prophet_table expected
         #  return the result of comparison with two columns [Lookup_Key,Result ]
@@ -172,18 +228,27 @@ class prophet_table:
         print("RESULT = \n{}".format(result))
         return result
   
-    def print_table(self)->None:
+    def show_detail(self):
+        print(">>>>>>File source:\t {}".format(self.__path__+self.__file_name__+self.__ext__))
+        print(">>>>>>File type:\t {}".format((lambda x: (lambda y: "Model Point File" if y == ".PRO" else "Result file")(x) if x !=".fac" else "Table")(self.__ext__)))
+        print(">>>>>>File Shape:\t ({},{})".format(self.__content__.shape[0],(lambda x: x if self.__show_leading__ else x-1)(self.__content__.shape[1])))
+        print(">>>>>>File Settings:\t key_num = {},\t show_leading = {}".format(self.__key_num__,self.__show_leading__))
+        self.show_content()
+
+    def show_content(self)->None:
         #printing function, print the table content
-        print(self.__content__)
+        if self.__show_leading__:
+            print(self.__content__)
+        else:
+            print(self.__content__[[x for x in self.__content__.keys()[1:]]])
   
-    def sort_records(self, target, target_col="", sort_timing="", inplace =False) -> pd.DataFrame:
+    def sort_records(self, target, target_col="", sort_timing="", inplace =False):
         #path input the directory of the file, ending with \\ string type expected
         #sort_timing, it used to sort the table with naming at specific timing string type expected
         # target Required Value for sorting, string type expected
         # target_col String, Traget location
         #inplace Bool, True if you want to modified the table content inside the table object
-        #return the sorted result as pandas DataFrame
-
+        #return the sorted result as new table
         if self.__ext__!=".PRO":
             raise Exception("Table Error, Not Model Point File")
 
@@ -195,9 +260,9 @@ class prophet_table:
 
         if inplace:
             self.__content__ = self.__content__[self.__content__[target_col] == target]
-            return self.__content__
+            return self
         
-        return self.__content__[self.__content__[target_col] == target]
+        return prophet_table(object = self.__content__[self.__content__[target_col] == target],path =self.get_path(),file = self.get_path()+self.get_ext(),show_leading= self.get_show_leading())
 
     def to_file(self, path="", as_csv=False)->None:
         #Path: String Expected Output path of the file

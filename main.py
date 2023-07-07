@@ -2,7 +2,7 @@ from prophet_table import prophet_table
 from tqdm import tqdm
 import os
 import types
-src1 = "C:\\Users\\85261\\Documents\\GitHub\\mpfi\\example\\"#remember to add the "\\"
+src1 = os.getcwd()+"\\example\\"#remember to add the "\\"
 
 src2 = src1#remember to add the "\\"
 
@@ -30,15 +30,16 @@ tables =  get_files(src2,(lambda src:  True if src.find(".PRO")!=-1 else False))
 
 df1 = prophet_table(path = src2,file = tables[0],gen_key = True)
 df2 = prophet_table(path = src1,file =  tables[1], gen_key = True)
-
-dfx = df1[df1["SPCODE"]=='101000']
-print(dfx)
-print(type(dfx))
-dfx2 = df2.sort_records('101000',target_col="SPCODE")
-print(dfx2)
-print(type(dfx2))
-result =  df1.compare(df2)
+df1.show_detail()
+df1 = prophet_table( path = df1.get_path(), file = df1.get_filename()+df1.get_ext(), object =  df1[df1["SPCODE"]=='101000'],show_leading = True)
+# print(df1)
+df1.show_detail()
 print(type(df1))
+# dfx2 = df2.sort_records('101000',target_col="SPCODE")
+# print(dfx2)
+# print(type(dfx2))
+# result =  df1.compare(df2)
+# print(type(df1))
 
 # for file in tqdm(get_files(src2,(lambda src:  True if src.find(".fac")!=-1 and src.find("202212")!=-1 else False)),desc = "Table checking progress",unit = "tables"):
 # for file in tqdm(get_files(src2,(lambda src:  True if src.find(".fac")!=-1 else False)),desc = "Table checking progress",unit = "tables"):
