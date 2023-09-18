@@ -1,6 +1,6 @@
 import pandas as pd
+import numpy as np
 import os
-import sys
 # def report_error(msg = ""):
 # sys.setrecursionlimit(5000)
 # @pd.api.extensions.register_dataframe_accessor("pp")
@@ -16,7 +16,6 @@ class prophet_table(pd.DataFrame):
         return prophet_table
    
     def  read_csv(self,filepath_or_buffer):
-        #self.__find_key_num__()
         return prophet_table(pd.read_csv(filepath_or_buffer = filepath_or_buffer ,sep = ",",skiprows = [x for x in range(self.__find_fac_header_row__(filepath_or_buffer))],encoding='latin', dtype=str, on_bad_lines="skip"))#.drop(columns=0,axis=1,inplace=True))
     
     def __find_key_num__(self)->int:
@@ -42,6 +41,7 @@ class prophet_table(pd.DataFrame):
         with open(filename, 'r', encoding='latin-1') as f:
             for line in f:
                 if line[0] == '!':
+                    print(result)
                     return result
                 result += 1
 
@@ -83,14 +83,14 @@ class prophet_table(pd.DataFrame):
         
         return cur_key
 
+
     def compare(self, table2)->pd.DataFrame:
-        # fac2 = table 2 you imported prophet_table expected
+        # table2 = table  you imported prophet_table expected
         #  return the result of comparison with two columns [Lookup_Key,Result ] in pandas dataframe
 
         if not(isinstance(table2,prophet_table)):
             raise Exception("The file is not prophet table object")
-
-        print(table2)
+        
         key2 =  table2.gen_key(True)
         key1 =  self.gen_key(True)
         result=pd.DataFrame()   
@@ -103,22 +103,11 @@ class prophet_table(pd.DataFrame):
         
         temp = []
         print("Lookup_Key")
-        for key in result["Lookup_Key"]:
-
-            check1 = self.__key_loc__(key, key2)
-            check2 = self.__key_loc__(key,key1)
-            
-            if check1!=-1 and check2!=-1 :
-                temp.append("Matched in both file")
-            
-            elif check1!=-1:
-                temp.append("Matched in fac1 only")
-            
-            else:
-                temp.append("Matched in fac2 only")
-
-        result["Result"] = temp
-          
+        result["Lookup_Key_1"] = np.where(result["Lookup_Key"].isin(key1),"Matched",0)
+        result["Lookup_Key_2"] = np.where(result["Lookup_Key"].isin(key2),"Matched",0)
+        
+        result["Result"] = np.select(condlist=[result["Lookup_Key_1"]==result["Lookup_Key_2"],result["Lookup_Key_2"]=="Matched"],choicelist = ["Matched in both file","Matched in fac2 only"],default = "Matched in fac1 only") 
+        result.drop(columns=["Lookup_Key_1","Lookup_Key_2"],inplace = True)
         return result
 
 
