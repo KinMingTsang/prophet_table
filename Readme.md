@@ -10,15 +10,8 @@ This module is based on padandas pd, and designed for single model point file sy
 
 ## Functions defined
 
-Structure:</br>
-    the file input will be split by four parts</br>
-    1. Root directory for the table</br>
-    2. File name without extension</br>
-    3. File Extention  designed for determing file type</br>
-    4. File content  which is oftenly  manipulated</br>
 
-
-Last modified date: 7th July 2023
+Last modified date: 19th Sept 2023
     
 Data Member:
     for following members, without specification, you can refer to the __init__ function
