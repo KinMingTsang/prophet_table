@@ -102,12 +102,11 @@ class prophet_table(pd.DataFrame):
             result["Lookup_Key"] = pd.Series(pd.concat([ key1, key2], axis=0, ignore_index=True).unique()).reindex()
         
         temp = []
-        print("Lookup_Key")
         result["Lookup_Key_1"] = np.where(result["Lookup_Key"].isin(key1),"Matched",0)
         result["Lookup_Key_2"] = np.where(result["Lookup_Key"].isin(key2),"Matched",0)
         
         result["Result"] = np.select(condlist=[result["Lookup_Key_1"]==result["Lookup_Key_2"],result["Lookup_Key_2"]=="Matched"],choicelist = ["Matched in both file","Matched in fac2 only"],default = "Matched in fac1 only") 
-
-        return result.drop(columns=["Lookup_Key_1","Lookup_Key_2"],inplace = True)
+        result.drop(columns=["Lookup_Key_1","Lookup_Key_2"],inplace = True)
+        return result
 
 
