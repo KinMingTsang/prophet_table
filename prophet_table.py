@@ -37,7 +37,6 @@ class prophet_table(pd.DataFrame):
         with open(filename, 'r', encoding='latin-1') as f:
             for line in f:
                 if line[0] == '!':
-                    print(result)
                     return result
                 result += 1
 
