@@ -24,7 +24,6 @@ def get_files(path,sorting=""):
 tables =  get_files(src2,(lambda src:  True if src.find(".PRO")!=-1 else False))
 #to create an accessor so that we can access the table through the accessor
 pp = prophet_table()
-print(tables[1])
 #the underlying framework of the prophetable is exactly the same, therefore,we can use it in the same way as pandas
 df1 = pp.read_csv(filepath_or_buffer = src1+"\\"+tables[1])
 df2 = pp.read_csv(filepath_or_buffer = src1+"\\"+tables[2])
@@ -34,4 +33,3 @@ print(df1)
 print(df2)
 print(df1[df1['AGE_AT_ENTRY']<'40'])
 print(df1.compare(df2))
-print("df1")
