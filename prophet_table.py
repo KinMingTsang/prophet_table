@@ -17,13 +17,17 @@ class prophet_table(pd.DataFrame):
     def __find_key_num__(self)->int:
         #df the target dataframe, pandas dataframe is expected
         # value_compare: Boolean, True when you want to compare the value for whole table
+        
+        if self.__key_num__ !=0:
+            return self.__key_num__
+
         if len(self.columns[0])!= 1:
-            self = int((self.columns[0])[1:]) #set this variable to the number of column that needs to be used as key
+            self.__key_num__ = int((self.columns[0])[1:]) #set this variable to the number of column that needs to be used as key
             
             if self.__key_num__ >self.shape[1]:
                 self.__key_num__ = self.shape[1]
         else:
-            raise Exception("Invalid Key Num")
+            raise Exception("INVALID KEY NUMBER")
 
     def __find_fac_header_row__(self,filepath_or_buffer)->int:
         '''
@@ -55,6 +59,8 @@ class prophet_table(pd.DataFrame):
                     
         cur_key = ""  
         
+        self.__find_key_num__()
+
         if "Key" in self.keys():
             if value_compare:
 

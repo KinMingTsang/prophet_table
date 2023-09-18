@@ -30,6 +30,9 @@ df2 = pp.read_csv(filepath_or_buffer = src1+"\\"+tables[2])
 
 
 print(df1)
+df1["Key"] = df1.gen_key()
+print(df1)
 print(df2)
+
 print(df1[df1['AGE_AT_ENTRY']<'40'])
 print(df1.compare(df2))
