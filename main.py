@@ -8,9 +8,6 @@ src1 = os.getcwd()+"\\example\\"#remember to add the "\\"
 # src1 ="C:\\Users\\85261\\Documents\\GitHub\\prophet_table\\example"
 src2 = src1#remember to add the "\\"
 
-export = "C:\\Users\\85261\\Downloads\\"#remember to add the "\\"
-
-
 ##for the detail of the comparison mechanism please refer to the util.py!
 
 ##Note that all file should be put in the same directory,
