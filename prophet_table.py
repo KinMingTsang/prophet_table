@@ -16,7 +16,7 @@ class prophet_table(pd.DataFrame):
         return prophet_table
    
     def  read_csv(self,filepath_or_buffer,is_mpf = False):
-        obj = prophet_table(pd.read_csv(filepath_or_buffer = filepath_or_buffer ,sep = ",\s*",engine = "python",skiprows = [x for x in range(self.__find_fac_header_row__(filepath_or_buffer))],encoding='latin', dtype=str, on_bad_lines="skip"))#.drop(columns=0,axis=1,inplace=True))
+        obj = prophet_table(pd.read_csv(filepath_or_buffer = filepath_or_buffer ,sep = ",\s*",engine = "python",skiprows = [x for x in range(self.__find_fac_header_row__(filepath_or_buffer))],encoding='latin', dtype=str, on_bad_lines="skip"))
         obj.__set_attribute__(is_mpf)
         return  obj
     def __find_key_num__(self)->int:
@@ -115,23 +115,26 @@ class prophet_table(pd.DataFrame):
         
         temp = []
 
-        result["Lookup_Key_1"] = np.where(result["Check_Key_List"].isin(key1),result["Check_Key_List"],0)
-        result["Lookup_Key_2"] = np.where(result["Check_Key_List"].isin(key2),result["Check_Key_List"],0)
-        result["Result"] = np.select(condlist=[result["Lookup_Key_1"]==result["Lookup_Key_2"],result["Lookup_Key_2"]!=0],choicelist = ["Matched in both file","Matched in fac2 only"],default = "Matched in fac1 only") 
+        result["Lookup_Key_1"] = np.where(result["Check_Key_List"].isin(key1),result["Check_Key_List"],"")
+        result["Lookup_Key_2"] = np.where(result["Check_Key_List"].isin(key2),result["Check_Key_List"],"")
+        result["Result"] = np.select(condlist=[result["Lookup_Key_1"]==result["Lookup_Key_2"],result["Lookup_Key_2"]!=""],choicelist = ["Matched in both file","Matched in fac2 only"],default = "Matched in fac1 only") 
         
         if not preserve_key_indicator:
             result.drop(columns=["Lookup_Key_1","Lookup_Key_2"],inplace = True)
         
         if index_key_generate:
             if not (self.__is_mpf__ or table2.get_attribute()):
-                result ["Index_Key"] = result ["Check_Key_List"] 
-                result ["Index_Key"] = result ["Index_Key"].apply(self.__set_key__)
-                
+                result ["Index_Key"] = result ["Check_Key_List"].astype(dtype = str)
+                result ["Index_NO"] = result ["Index_Key"].apply(self.__set_key__)
+                result["Lookup_Key_1"] = np.where(result["Lookup_Key_1"] != "", result.apply(lambda x: x["Index_Key"][x["Index_NO"]+1:], axis=1),"")  
+                result["Lookup_Key_2"] = np.where(result["Lookup_Key_2"] !="", result.apply(lambda x: x["Index_Key"][x["Index_NO"]+1:], axis=1),"")
+                result["Index_Key"] = "*-"+np.where(result["Index_Key"] !="", result.apply(lambda x: x["Index_Key"][:x["Index_NO"]], axis=1),"")
+                result = result.drop(["Index_NO"],axis = 1 )
         return result
-
 
     def __set_key__(self,value):
         position = 0
-        for i in range ( self.__key_num__):
-            position = value.find("-")
-        return "*-"+value[0:position]    
+        for i in range (1,self.__key_num__):
+            position += value[position:].find("-")+1
+
+        return position-1
