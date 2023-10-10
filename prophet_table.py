@@ -16,13 +16,9 @@ class prophet_table(pd.DataFrame):
         return prophet_table
    
     def  read_csv(self,filepath_or_buffer,is_mpf = False):
-        self.__is_mpf__ = is_mpf
-        if self.__is_mpf__:
-            return  prophet_table(pd.read_csv(filepath_or_buffer = filepath_or_buffer ,sep=',\s*',engine = "python",skiprows = [x for x in range(self.__find_fac_header_row__(filepath_or_buffer))],encoding='utf-8', dtype=str, on_bad_lines="skip"))#.drop(columns=0,axis=1,inplace=True))
-
-        else:
-            return prophet_table(pd.read_csv(filepath_or_buffer = filepath_or_buffer ,sep = ",\s*",engine = "python",skiprows = [x for x in range(self.__find_fac_header_row__(filepath_or_buffer))],encoding='latin', dtype=str, on_bad_lines="skip"))#.drop(columns=0,axis=1,inplace=True))
-    
+        obj = prophet_table(pd.read_csv(filepath_or_buffer = filepath_or_buffer ,sep = ",\s*",engine = "python",skiprows = [x for x in range(self.__find_fac_header_row__(filepath_or_buffer))],encoding='latin', dtype=str, on_bad_lines="skip"))#.drop(columns=0,axis=1,inplace=True))
+        obj.__set_attribute__(is_mpf)
+        return  obj
     def __find_key_num__(self)->int:
         '''df the target dataframe, pandas dataframe is expected
         value_compare: Boolean, True when you want to compare the value for whole table'''
@@ -94,7 +90,12 @@ class prophet_table(pd.DataFrame):
         
         return cur_key
 
-
+    def __set_attribute__(self,is_mpf):
+        self.is_mpf = is_mpf
+    
+    def get_attribute(self):
+        return self.is_mpf
+    
     def compare(self, table2,preserve_key_indicator=True,index_key_generate = False)->pd.DataFrame:
         '''table2 = table  you imported prophet_table expected
         return the result of comparison with two columns [Lookup_Key,Result ] in pandas dataframe'''
@@ -122,13 +123,9 @@ class prophet_table(pd.DataFrame):
             result.drop(columns=["Lookup_Key_1","Lookup_Key_2"],inplace = True)
         
         if index_key_generate:
-            if self.__is_mpf__:
-                pass
-            else:
+            if not (self.__is_mpf__ or table2.get_attribute()):
                 result ["Index_Key"] = result ["Check_Key_List"] 
-                position = 0
                 result ["Index_Key"] = result ["Index_Key"].apply(self.__set_key__)
-                # result["Index_Key"] =  result 
                 
         return result
 
