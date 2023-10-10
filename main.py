@@ -26,7 +26,7 @@ def compare_dir(path1,path2):
     counter= 1
     for file in tqdm(file_list1,desc = "FILE IN FOLDER"):
         if file in file_list2:
-            if (lambda src:  True if src.find(".fac")!=-1 else False)(file):
+            if (lambda src:  True if src.find(".PRO")!=-1 else False)(file):
                 #the underlying framework of the prophetable is exactly the same, therefore,we can use it in the same way as pandas
                 df1 = pp.read_csv(filepath_or_buffer = path1+file,is_mpf=False)
                 df2 = pp.read_csv(filepath_or_buffer = path2+file,is_mpf=False)
@@ -37,8 +37,8 @@ def compare_dir(path1,path2):
                 counter = counter +1
 
 os.system('cls')                        
-src1 = os.getcwd()+"\\path1\\"#remember to add the "\\"
-src2 = os.getcwd()+"\\path2\\"#remember to add the "\\"
+src1 = os.getcwd()+"\\example\\"#remember to add the "\\"
+src2 = os.getcwd()+"\\example\\"#remember to add the "\\"
 
 compare_dir(src1,src2)
 
