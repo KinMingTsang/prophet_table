@@ -21,7 +21,7 @@ class prophet_table(pd.DataFrame):
             return  prophet_table(pd.read_csv(filepath_or_buffer = filepath_or_buffer ,sep=',\s*',engine = "python",skiprows = [x for x in range(self.__find_fac_header_row__(filepath_or_buffer))],encoding='utf-8', dtype=str, on_bad_lines="skip"))#.drop(columns=0,axis=1,inplace=True))
 
         else:
-            return prophet_table(pd.read_csv(filepath_or_buffer = filepath_or_buffer ,sep = ",\s*",skiprows = [x for x in range(self.__find_fac_header_row__(filepath_or_buffer))],encoding='latin', dtype=str, on_bad_lines="skip"))#.drop(columns=0,axis=1,inplace=True))
+            return prophet_table(pd.read_csv(filepath_or_buffer = filepath_or_buffer ,sep = ",\s*",engine = "python",skiprows = [x for x in range(self.__find_fac_header_row__(filepath_or_buffer))],encoding='latin', dtype=str, on_bad_lines="skip"))#.drop(columns=0,axis=1,inplace=True))
     
     def __find_key_num__(self)->int:
         '''df the target dataframe, pandas dataframe is expected
