@@ -38,9 +38,17 @@ def compare_dir(path1,path2):
                 # print(df1['AGE_AT_ENTRY']<'40')
                 # print(df1[df1['AGE_AT_ENTRY']<'40'])
                 print(file)
-                print(df1.compare(df2))
+                # print(df1.compare(df2))
+                df1.compare(df2).to_csv(path1+"Result_compare_1.csv")
 
 
-compare_dir(path1 = src1,path2 = src2)
-# tables =  get_files(src2,(lambda src:  True if src.find(".PRO")!=-1 else False))
-
+# compare_dir(path1 = src1,path2 = src2)
+tables =  get_files(src2,(lambda src:  True if src.find(".PRO")!=-1 else False))
+pp = prophet_table() 
+df1 = pp.read_csv(filepath_or_buffer = src1+tables[0])
+df2 = pp.read_csv(filepath_or_buffer = src2+tables[2])
+print(df1)
+print(df2)
+result = df1.compare(df2,index_key_generate= True)
+print(result)
+result.to_csv(src2+"\\result.csv")

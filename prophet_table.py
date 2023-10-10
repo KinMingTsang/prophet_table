@@ -95,7 +95,7 @@ class prophet_table(pd.DataFrame):
         return cur_key
 
 
-    def compare(self, table2,preserve_key_indicator=True)->pd.DataFrame:
+    def compare(self, table2,preserve_key_indicator=True,index_key_generate = False)->pd.DataFrame:
         '''table2 = table  you imported prophet_table expected
         return the result of comparison with two columns [Lookup_Key,Result ] in pandas dataframe'''
 
@@ -107,20 +107,34 @@ class prophet_table(pd.DataFrame):
         result=pd.DataFrame()   
 
         try:
-            result["Lookup_Key"] = pd.concat([key1, key2], axis=0, ignore_index=True).unique()
+            result["Check_Key_List"] = pd.concat([key1, key2], axis=0, ignore_index=True).unique()
         
         except ValueError:
-            result["Lookup_Key"] = pd.Series(pd.concat([ key1, key2], axis=0, ignore_index=True).unique()).reindex()
+            result["Check_Key_List"] = pd.Series(pd.concat([ key1, key2], axis=0, ignore_index=True).unique()).reindex()
         
         temp = []
 
-        result["Lookup_Key_1"] = np.where(result["Lookup_Key"].isin(key1),"Matched",0)
-        result["Lookup_Key_2"] = np.where(result["Lookup_Key"].isin(key2),"Matched",0)
-        
-        result["Result"] = np.select(condlist=[result["Lookup_Key_1"]==result["Lookup_Key_2"],result["Lookup_Key_2"]=="Matched"],choicelist = ["Matched in both file","Matched in fac2 only"],default = "Matched in fac1 only") 
+        result["Lookup_Key_1"] = np.where(result["Check_Key_List"].isin(key1),result["Check_Key_List"],0)
+        result["Lookup_Key_2"] = np.where(result["Check_Key_List"].isin(key2),result["Check_Key_List"],0)
+        result["Result"] = np.select(condlist=[result["Lookup_Key_1"]==result["Lookup_Key_2"],result["Lookup_Key_2"]!=0],choicelist = ["Matched in both file","Matched in fac2 only"],default = "Matched in fac1 only") 
         
         if not preserve_key_indicator:
             result.drop(columns=["Lookup_Key_1","Lookup_Key_2"],inplace = True)
         
+        if index_key_generate:
+            if self.__is_mpf__:
+                pass
+            else:
+                result ["Index_Key"] = result ["Check_Key_List"] 
+                position = 0
+                result ["Index_Key"] = result ["Index_Key"].apply(self.__set_key__)
+                # result["Index_Key"] =  result 
+                
         return result
 
+
+    def __set_key__(self,value):
+        position = 0
+        for i in range ( self.__key_num__):
+            position = value.find("-")
+        return "*-"+value[0:position]    
