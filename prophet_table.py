@@ -1,22 +1,31 @@
 import pandas as pd
 import numpy as np
 import os
-
+import csv
 class prophet_table(pd.DataFrame):
     #inheritated from Pandas
     __key_num__ = 0
     __content__ =None
+    __is_mpf__ = False
     
     @property
     def _constructor(self):
+        '''
+            this function calls the default constructor to set attribute that is specific to prophet_table class before executing dataframe contstructor
+        '''
         return prophet_table
    
-    def  read_csv(self,filepath_or_buffer):
-        return prophet_table(pd.read_csv(filepath_or_buffer = filepath_or_buffer ,sep = ",",skiprows = [x for x in range(self.__find_fac_header_row__(filepath_or_buffer))],encoding='latin', dtype=str, on_bad_lines="skip"))#.drop(columns=0,axis=1,inplace=True))
+    def  read_csv(self,filepath_or_buffer,is_mpf = False):
+        self.__is_mpf__ = is_mpf
+        if self.__is_mpf__:
+            return  prophet_table(pd.read_csv(filepath_or_buffer = filepath_or_buffer ,sep=',\s*',engine = "python",skiprows = [x for x in range(self.__find_fac_header_row__(filepath_or_buffer))],encoding='utf-8', dtype=str, on_bad_lines="skip"))#.drop(columns=0,axis=1,inplace=True))
+
+        else:
+            return prophet_table(pd.read_csv(filepath_or_buffer = filepath_or_buffer ,sep = ",\s*",skiprows = [x for x in range(self.__find_fac_header_row__(filepath_or_buffer))],encoding='latin', dtype=str, on_bad_lines="skip"))#.drop(columns=0,axis=1,inplace=True))
     
     def __find_key_num__(self)->int:
-        #df the target dataframe, pandas dataframe is expected
-        # value_compare: Boolean, True when you want to compare the value for whole table
+        '''df the target dataframe, pandas dataframe is expected
+        value_compare: Boolean, True when you want to compare the value for whole table'''
         
         if self.__key_num__ !=0:
             return self.__key_num__
@@ -44,18 +53,19 @@ class prophet_table(pd.DataFrame):
                     return result
                 result += 1
 
-    def __key_loc__(self, key, lookup)->int:
-        #this function will return the index of the key
-        #lookup: the table you want to check with. Key: The target you want to find
-        check = lookup.isin([key])
-        for index, value in enumerate(check):
-            if value :
-                return index
-        return -1
-
+    def __key_loc__(self, key, table)->int:
+        '''this function will return the index of the key
+            table: the table you want to check with. 
+            Key: The target you want to find
+        '''
+        check = np.where(table.isin([key]))[0]
+        if check.shape[0] ==-1:
+            return -1
+        return check
+    
     def gen_key(self, value_compare=False)->None:
-        # value_compare: Boolean, True when you want to compare the value for whole table
-        #this function will attach the key to the  target dataframe with key attached
+        '''value_compare: Boolean, True when you want to compare the value for whole table
+            this function will attach the key to the  target dataframe with key attached'''
                     
         cur_key = ""  
         
@@ -85,9 +95,9 @@ class prophet_table(pd.DataFrame):
         return cur_key
 
 
-    def compare(self, table2)->pd.DataFrame:
-        # table2 = table  you imported prophet_table expected
-        #  return the result of comparison with two columns [Lookup_Key,Result ] in pandas dataframe
+    def compare(self, table2,preserve_key_indicator=True)->pd.DataFrame:
+        '''table2 = table  you imported prophet_table expected
+        return the result of comparison with two columns [Lookup_Key,Result ] in pandas dataframe'''
 
         if not(isinstance(table2,prophet_table)):
             raise Exception("The file is not prophet table object")
@@ -108,7 +118,9 @@ class prophet_table(pd.DataFrame):
         result["Lookup_Key_2"] = np.where(result["Lookup_Key"].isin(key2),"Matched",0)
         
         result["Result"] = np.select(condlist=[result["Lookup_Key_1"]==result["Lookup_Key_2"],result["Lookup_Key_2"]=="Matched"],choicelist = ["Matched in both file","Matched in fac2 only"],default = "Matched in fac1 only") 
-
-        result.drop(columns=["Lookup_Key_1","Lookup_Key_2"],inplace = True)
+        
+        if not preserve_key_indicator:
+            result.drop(columns=["Lookup_Key_1","Lookup_Key_2"],inplace = True)
+        
         return result
 
