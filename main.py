@@ -37,17 +37,18 @@ def compare_dir(path1,path2):
                 counter = counter +1
 
 os.system('cls')                        
-src1 = os.getcwd()+"\\example\\"#remember to add the "\\"
-src2 = os.getcwd()+"\\example\\"#remember to add the "\\"
+#src1 = os.getcwd()+"\\example\\"#remember to add the "\\"
 
-compare_dir(src1,src2)
+#src2 = os.getcwd()+"\\example\\"#remember to add the "\\"
 
-# compare_dir(path1 = src1,path2 = src2)
-# tables =  get_files(src2,(lambda src:  True if src.find(".fac")!=-1 else False))
-# pp = prophet_table() 
-# df1 = pp.read_csv(filepath_or_buffer = src1+tables[1],is_mpf= False)
-# df2 = pp.read_csv(filepath_or_buffer = src2+tables[1],is_mpf= False)
-# # df1.set_attribute(is_mpf= True) 
-# result = df1.compare(df2,index_key_generate= True)
-# print(result)
-# result.to_csv(src2+"\\result.csv")
+#compare_dir(src1,src2)
+
+### single file comparison
+src1 = os.getcwd()+"\\example\\C123457.PRO"#remember to add the "\\"
+
+src2 = os.getcwd()+"\\example\\C1234567.PRO"#remember to add the "\\"
+pp = prophet_table()
+df1 = pp.read_csv(filepath_or_buffer = src1,is_mpf=False)
+df2 = pp.read_csv(filepath_or_buffer = src2,is_mpf=False,)
+#print(df1.compare(df2,index_key_generate=True))
+print(df1.get_difference(df2))
