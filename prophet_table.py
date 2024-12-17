@@ -138,11 +138,6 @@ class prophet_table(pd.DataFrame):
         return result
 
 
-   ###
-   # Pendings:
-   #            1. Sort key ordering based on fac1 => order affects the mapping in key and result
-    
-
     def get_difference(self,table2:pd.DataFrame)->pd.DataFrame:
         '''table2 = table  you imported prophet_table expected\n
             assumed no duplicate records\n
@@ -158,17 +153,25 @@ class prophet_table(pd.DataFrame):
         fac2_only = result[result["Result"]=="Matched in fac2 only"]
         
         mutual_id = fac1_only[fac1_only["Index_Key"].isin(fac2_only["Index_Key"])]
+        mutual_id.sort_values(by = "Index_Key",ascending= True,inplace =True)
         mutual_id.reset_index(drop=True, inplace=True)
+        
+        fac2_only.sort_values("Index_Key",ascending= True,inplace =True)
+        temp  = fac2_only["Lookup_Key_2"][ fac2_only["Index_Key"].isin(mutual_id["Index_Key"])]
+        temp.reset_index(drop=True, inplace=True)
 
-        mutual_id.drop(["Result","Lookup_Key_1","Lookup_Key_2"],axis = 1,inplace = True)
+        mutual_id["Lookup_Key_2"] = temp
+        mutual_id.drop(["Result"],axis = 1,inplace = True)#,"Lookup_Key_1","Lookup_Key_2"],axis = 1,inplace = True)
 
         #mark out the difference position
         self.insert(1,"Index_Key",self.gen_key())
         table2["Index_Key"] = table2.gen_key()
 
         fac1_only = self.__getitem__(self.__getitem__("Index_Key").isin(mutual_id["Index_Key"]))
+        fac1_only.sort_values(by = "Index_Key",ascending= True,inplace =True)
         fac1_only.reset_index(drop=True, inplace=True)
         fac2_only = table2[table2["Index_Key"].isin(mutual_id["Index_Key"])]
+        fac2_only.sort_values(by ="Index_Key",ascending= True,inplace =True)
         fac2_only.reset_index(drop=True, inplace=True)
         
         result = pd.DataFrame()

@@ -37,13 +37,13 @@ def compare_dir(path1,path2):
                 counter = counter +1
 
 os.system('cls')                        
-#src1 = os.getcwd()+"\\example\\"#remember to add the "\\"
+# src1 = os.getcwd()+"\\example\\"#remember to add the "\\"
 
-#src2 = os.getcwd()+"\\example\\"#remember to add the "\\"
+# src2 = os.getcwd()+"\\example\\"#remember to add the "\\"
 
-#compare_dir(src1,src2)
+# compare_dir(src1,src2)
 
-### single file comparison
+## single file comparison
 src1 = os.getcwd()+"\\example\\C123457.PRO"#remember to add the "\\"
 
 src2 = os.getcwd()+"\\example\\C1234567.PRO"#remember to add the "\\"
