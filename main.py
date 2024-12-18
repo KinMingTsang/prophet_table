@@ -32,7 +32,7 @@ def compare_dir(path1,path2):
                 df2 = pp.read_csv(filepath_or_buffer = path2+file,is_mpf=False)
                 print("\n"+file.upper()+"\n")
                 result = df1.compare(df2,index_key_generate = True)
-                result.to_csv(path1+f"Result_compare_{counter}.csv")
+                result.to_csv(path1+f"Result_compare_{file}.csv")
                 print(result)
                 counter = counter +1
 
@@ -50,5 +50,8 @@ src2 = os.getcwd()+"\\example\\C1234567.PRO"#remember to add the "\\"
 pp = prophet_table()
 df1 = pp.read_csv(filepath_or_buffer = src1,is_mpf=False)
 df2 = pp.read_csv(filepath_or_buffer = src2,is_mpf=False,)
-#print(df1.compare(df2,index_key_generate=True))
+print(df1,"\n",df2)
+# print(df1.compare(df2,index_key_generate=True))
 print(df1.get_difference(df2))
+#df1.get_difference(df2)
+# print(df1)
