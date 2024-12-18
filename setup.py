@@ -7,7 +7,7 @@ setuptools.setup (
     author='Kin Tsang', 
     author_email='kinming0807oppo@gmail.com', 
     long_description= "This is a python library to facilitate the processing of model points used for actuarial software Prophet, produced by FIS. \n It utilizes the power of the Pandas library so you can easily parse, process and filter the model points.",
-    url="https://github.com/bensonby/mpfi",
+    url="",
     packages= setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
